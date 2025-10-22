@@ -1,4 +1,9 @@
-/* 1.  ISO-3166 country name → 2-letter code */
+document.addEventListener('DOMContentLoaded', function () {
+  const countrySelect = document.getElementById('countryList');
+  const newsFeed = document.getElementById('headlines');
+  const searchInput = document.getElementById('search');
+
+  // List of country codes and names
 const countries = [
   "Afghanistan,AF","Albania,AL","Algeria,DZ","Andorra,AD","Angola,AO","Antigua and Barbuda,AG",
   "Argentina,AR","Armenia,AM","Australia,AU","Austria,AT","Azerbaijan,AZ","Bahamas,BS",
@@ -32,44 +37,53 @@ const countries = [
   "Vanuatu,VU","Vatican City,VA","Venezuela,VE","Vietnam,VN","Yemen,YE","Zambia,ZM","Zimbabwe,ZW"
 ].map(c=>c.split(','));
 
-/* 2.  Fill country list */
-const list   = document.getElementById('countryList');
-const search = document.getElementById('search');
-const box    = document.getElementById('headlines');
-
-function fillList(arr){
-  list.innerHTML='';
-  arr.forEach(([name,code])=>{
-    const li=document.createElement('li');
-    li.textContent=name;
-    li.dataset.code=code;
-    li.addEventListener('click',()=>fetchNews(code,name));
-    list.appendChild(li);
+  // Fill the country dropdown
+  countries.forEach(country => {
+    const option = document.createElement('option');
+    option.value = country.code;
+    option.textContent = country.name;
+    countrySelect.appendChild(option);
   });
-}
-fillList(countries);
 
-search.addEventListener('input',()=>{
-  const q=search.value.toLowerCase();
-  fillList(countries.filter(([n])=>n.toLowerCase().includes(q)));
+  // Event listener for country selection
+  countrySelect.addEventListener('change', function () {
+    const selectedCountryCode = this.value;
+    if (!selectedCountryCode) return;
+    fetchNews(selectedCountryCode);
+  });
+
+  // Event listener for search input
+  searchInput.addEventListener('input', function () {
+    const query = this.value.toLowerCase();
+    const filteredCountries = countries.filter(country =>
+      country.name.toLowerCase().includes(query)
+    );
+    countrySelect.innerHTML = filteredCountries.map(country => `
+      <option value="${country.code}">${country.name}</option>
+    `).join('');
+  });
+
+  // Function to fetch news
+  async function fetchNews(countryCode) {
+    const apiKey = 'c1444727e95a47f0b09baf3e77a5744a'; // Replace with your NewsAPI.org API key
+    const url = `https://newsapi.org/v2/top-headlines?country=${countryCode}&apiKey=${apiKey}`;
+    try {
+      const response = await fetch(url);
+      const data = await response.json();
+      displayNews(data.articles);
+    } catch (error) {
+      console.error('Error fetching news:', error);
+      newsFeed.textContent = 'Failed to load news.';
+    }
+  }
+
+  // Function to display news articles
+  function displayNews(articles) {
+    newsFeed.innerHTML = articles.map(article => `
+      <div>
+        <a href="${article.url}" target="_blank">${article.title}</a>
+        <small>${new Date(article.publishedAt).toLocaleDateString()}</small>
+      </div>
+    `).join('');
+  }
 });
-
-/* 3.  Fetch headlines from GDELT */
-async function fetchNews(code,name){
-  box.innerHTML=`Loading <b>${name}</b>…`;
-  /* GDELT v2 geo API: last 24 h, top 25 stories for country */
-  const url=`https://api.gdeltproject.org/api/v2/geo/geo?format=html&timespan=24h&query=country:${code}&mode=artlist&maxrecords=25&format=json`;
-  try{
-    const r=await fetch(url);
-    const j=await r.json();
-    if(!j.articles || !j.articles.length){ box.innerHTML='No headlines found.'; return; }
-    box.innerHTML='';
-    j.articles.forEach(a=>{
-      const art=document.createElement('article');
-      art.innerHTML=`
-        <a href="${a.url}" target="_blank" rel="noopener">${a.title}</a>
-        <div class="time">${new Date(a.seendate).toLocaleString()}</div>`;
-      box.appendChild(art);
-    });
-  }catch(e){ box.innerHTML='Error loading news.'; console.error(e); }
-}
