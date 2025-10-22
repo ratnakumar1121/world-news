@@ -1,26 +1,32 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>World News by Country</title>
-  <link rel="stylesheet" href="css/style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hot World News</title>
+    <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-  <h1>World News</h1>
-  
-  <div id="wrapper">
-    <aside>
-      <input id="search" type="text" placeholder="Search countries...">
-      <ul id="countryList"></ul>
-    </aside>
+    <header>
+        <h1>Hot World News</h1>
+        <p>Latest global headlines by country, updated in real-time</p>
+    </header>
     <main>
-      <div id="headlines">
-        <p>← Select a country to see headlines</p>
-      </div>
+        <div id="controls">
+            <select id="country-select">
+                <option value="">Select a country</option>
+                <!-- Options populated by JS -->
+            </select>
+            <input type="text" id="search-input" placeholder="Search keywords (e.g., election, climate)">
+            <button id="fetch-btn">Fetch News</button>
+        </div>
+        <div id="news-container">
+            <p class="loading">Select a country or search to load news...</p>
+        </div>
     </main>
-  </div>
-
-  <script src="js/app.js"></script>
+    <footer>
+        <p>Powered by NewsAPI.org. Free tier limited to 100 requests/day. No affiliation with news sources.</p>
+    </footer>
+    <script src="js/app.js"></script>
 </body>
 </html>
