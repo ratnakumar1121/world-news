@@ -4,9 +4,9 @@ document.addEventListener('DOMContentLoaded', function() {
     const searchInput = document.getElementById('search-input');
     const fetchBtn = document.getElementById('fetch-btn');
     
-    // NewsAPI key - Your provided key
-    const apiKey = 'c1444727e95a47f0b09baf3e77a5744a';
-    const apiUrl = 'https://newsapi.org/v2/top-headlines';
+    // NewsData.io API key - Your provided key
+    const apiKey = 'pub_564f854645fd4182b0e7b30a7e8af49b';
+    const apiUrl = 'https://newsdata.io/api/1/latest';
     
     // Comprehensive country list with ISO codes (subset for brevity; full list available via ISO standards)
     const countries = [
@@ -65,7 +65,7 @@ document.addEventListener('DOMContentLoaded', function() {
             return;
         }
 
-        let url = `${apiUrl}?apikey=${apiKey}&pageSize=10&sortBy=publishedAt`;
+        let url = `${apiUrl}?apikey=${apiKey}&pageSize=10`;
         
         if (country) {
             url += `&country=${country}`;
@@ -84,7 +84,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 return response.json();
             })
             .then(data => {
-                const articles = data.articles || [];
+                const articles = data.results || [];
                 container.innerHTML = '';
 
                 if (articles.length === 0) {
@@ -93,22 +93,26 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
 
                 articles.forEach(article => {
-                    if (!article.title || !article.url) return;
+                    if (!article.title || !article.link) return;
+
+                    const description = article.description || article.content || 'No description available.';
+                    const sourceName = article.source_id || article.creator || 'Unknown';
+                    const pubDate = article.pubDate || article.date;
 
                     const item = document.createElement('div');
                     item.className = 'news-item';
                     item.innerHTML = `
                         <h2>${article.title}</h2>
-                        <p>${article.description || 'No description available.'}</p>
-                        <a href="${article.url}" target="_blank">Read more</a>
-                        <div class="source">Source: ${article.source?.name || 'Unknown'} | ${new Date(article.publishedAt).toLocaleString()}</div>
+                        <p>${description.substring(0, 200)}...</p>
+                        <a href="${article.link}" target="_blank">Read more</a>
+                        <div class="source">Source: ${sourceName} | ${new Date(pubDate).toLocaleString()}</div>
                     `;
                     container.appendChild(item);
                 });
             })
             .catch(error => {
                 console.error('Error fetching news:', error);
-                container.innerHTML = `<p class="error">Failed to load news: ${error.message}. Check API key or connection. For no-key RSS fallback, edit this script.</p>`;
+                container.innerHTML = `<p class="error">Failed to load news: ${error.message}. Check API key or connection. Free tier: 200 credits/day.</p>`;
             });
     }
 
