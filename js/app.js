@@ -4,6 +4,24 @@ document.addEventListener('DOMContentLoaded', function() {
     const searchInput = document.getElementById('search-input');
     const fetchBtn = document.getElementById('fetch-btn');
     
+    // Null checks for elements
+    if (!container) {
+        console.error('News container not found');
+        return;
+    }
+    if (!countrySelect) {
+        console.error('Country select not found. Check index.html ID.');
+        return;
+    }
+    if (!searchInput) {
+        console.error('Search input not found');
+        return;
+    }
+    if (!fetchBtn) {
+        console.error('Fetch button not found');
+        return;
+    }
+    
     // NewsData.io API key - Your provided key
     const apiKey = 'pub_564f854645fd4182b0e7b30a7e8af49b';
     const apiUrl = 'https://newsdata.io/api/1/latest';
@@ -48,17 +66,23 @@ document.addEventListener('DOMContentLoaded', function() {
         // Add more as needed; full ISO list has 249 entries
     ];
 
-    // Populate country dropdown
-    countries.forEach(country => {
-        const option = document.createElement('option');
-        option.value = country.code;
-        option.textContent = country.name;
-        countrySelect.appendChild(option);
-    });
+    // Populate country dropdown with null check
+    if (countrySelect) {
+        // Clear existing options except the default
+        countrySelect.innerHTML = '<option value="">Select a country</option>';
+        
+        countries.forEach(country => {
+            const option = document.createElement('option');
+            option.value = country.code;
+            option.textContent = country.name;
+            countrySelect.appendChild(option);
+        });
+        console.log('Countries populated successfully');
+    }
 
     function fetchNews() {
-        const country = countrySelect.value;
-        const query = searchInput.value.trim();
+        const country = countrySelect ? countrySelect.value : '';
+        const query = searchInput ? searchInput.value.trim() : '';
         
         if (!country && !query) {
             container.innerHTML = '<p class="error">Please select a country or enter a search term.</p>';
@@ -116,12 +140,20 @@ document.addEventListener('DOMContentLoaded', function() {
             });
     }
 
-    fetchBtn.addEventListener('click', fetchNews);
-    countrySelect.addEventListener('change', fetchNews);
-    searchInput.addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') fetchNews();
-    });
+    // Event listeners with null checks
+    if (fetchBtn) {
+        fetchBtn.addEventListener('click', fetchNews);
+    }
+    if (countrySelect) {
+        countrySelect.addEventListener('change', fetchNews);
+    }
+    if (searchInput) {
+        searchInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') fetchNews();
+        });
+    }
 
+    console.log('Script loaded successfully');
     // Initial load (optional: fetch global news)
     // fetchNews();
 });
