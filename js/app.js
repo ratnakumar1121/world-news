@@ -65,7 +65,7 @@ const countries = [
 
   // Function to fetch news
   async function fetchNews(countryCode) {
-    const apiKey = 'c1444727e95a47f0b09baf3e77a5744a'; // Replace with your NewsAPI.org API key
+    const apiKey = c1444727e95a47f0b09baf3e77a5744a; // Replace with your NewsAPI.org API key
     const url = `https://newsapi.org/v2/top-headlines?country=${countryCode}&apiKey=${apiKey}`;
     try {
       const response = await fetch(url);
